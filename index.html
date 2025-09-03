@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Mini Conference (WebRTC Mesh)</title>
+    <style>
+      :root {
+        --bg: #071028;
+        --card: #0f1730;
+        --muted: #9fb0d3;
+        --accent: #5b8cff;
+        --accent-2: #5ee1b6;
+        --text: #e6eefc;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: Inter, system-ui, Arial;
+        background: radial-gradient(
+            800px 400px at 10% 0%,
+            #112248 0%,
+            #071028 40%
+          ),
+          var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      header {
+        padding: 12px 18px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        backdrop-filter: blur(6px);
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 800;
+      }
+      .brand .logo {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+      }
+      .top-controls {
+        margin-left: auto;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .btn {
+        background: #0b1630;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        padding: 8px 12px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 700;
+      }
+      .btn.primary {
+        background: linear-gradient(180deg, #12264f, #0b1630);
+      }
+      .container {
+        display: flex;
+        gap: 16px;
+        padding: 16px;
+        max-width: 1200px;
+        margin: 14px auto;
+        width: calc(100% - 40px);
+        flex: 1;
+      }
+      .left-panel {
+        width: 320px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .card {
+        background: linear-gradient(180deg, var(--card), #070a1a);
+        border-radius: 12px;
+        padding: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.04);
+      }
+      .state {
+        font-size: 0.9rem;
+        color: var(--muted);
+        margin-top: 6px;
+      }
+      .grid-wrap {
+        flex: 1;
+      }
+      .video-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+      }
+      .participant {
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #000;
+        min-height: 140px;
+        border: 1px solid rgba(255, 255, 255, 0.04);
+      }
+      .participant video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        background: #000;
+        display: block;
+      }
+      .label {
+        position: absolute;
+        left: 8px;
+        bottom: 8px;
+        background: rgba(0, 0, 0, 0.45);
+        padding: 6px 8px;
+        border-radius: 8px;
+        font-weight: 700;
+      }
+      .controls-row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .chatbox {
+        height: 220px;
+        display: flex;
+        flex-direction: column;
+      }
+      .chat-body {
+        flex: 1;
+        overflow: auto;
+        padding: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .msg {
+        padding: 8px 10px;
+        border-radius: 10px;
+        max-width: 85%;
+      }
+      .msg.me {
+        align-self: flex-end;
+        background: rgba(91, 140, 255, 0.14);
+        border: 1px solid rgba(91, 140, 255, 0.3);
+      }
+      .msg.them {
+        align-self: flex-start;
+        background: rgba(94, 225, 182, 0.08);
+        border: 1px solid rgba(94, 225, 182, 0.2);
+      }
+      .input-row {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+      }
+      input[type="text"] {
+        flex: 1;
+        padding: 8px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(255, 255, 255, 0.02);
+        color: var(--text);
+      }
+      @media (max-width: 900px) {
+        .container {
+          flex-direction: column;
+        }
+        .left-panel {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="brand">
+        <div class="logo"></div>
+        <div>Mini Conference</div>
+      </div>
+      <div class="top-controls">
+        <button id="joinBtn" class="btn primary">Join Room</button>
+        <button id="leaveBtn" class="btn">Leave</button>
+      </div>
+    </header>
+
+    <div class="container">
+      <div class="left-panel">
+        <div class="card">
+          <div style="font-weight: 800">Pengaturan</div>
+          <div class="state" id="localState">Belum tersambung</div>
+          <div style="margin-top: 10px" class="controls-row">
+            <button id="startBtn" class="btn">Start Cam/Mic</button>
+            <button id="shareBtn" class="btn">Share Screen</button>
+            <button id="toggleMic" class="btn">Mute Mic</button>
+            <button id="toggleCam" class="btn">Stop Cam</button>
+          </div>
+          <div style="margin-top: 10px" class="controls-row">
+            <label style="font-size: 0.9rem; color: var(--muted)">Room:</label>
+            <input
+              id="roomInput"
+              type="text"
+              value="demo-room"
+              style="
+                padding: 6px;
+                border-radius: 8px;
+                border: 1px solid rgba(255, 255, 255, 0.06);
+                background: transparent;
+                color: var(--text);
+              "
+            />
+          </div>
+          <div style="margin-top: 8px; color: var(--muted); font-size: 0.85rem">
+            Buka client.html di beberapa tab/perangkat, pastikan URL signaling
+            (ws) benar.
+          </div>
+        </div>
+
+        <div class="card chatbox">
+          <div style="font-weight: 800">Chat</div>
+          <div id="chatBody" class="chat-body"></div>
+          <div class="input-row">
+            <input id="chatInput" type="text" placeholder="Ketik pesan..." />
+            <button id="chatSend" class="btn">Kirim</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-wrap">
+        <div class="card" style="padding: 10px">
+          <div style="font-weight: 800; margin-bottom: 8px">Grid Peserta</div>
+          <div id="videoGrid" class="video-grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      /*
+  Client for mesh multi-user WebRTC using WebSocket signaling
+  Make sure to set SIGNALING_SERVER_URL to your server (ws://localhost:3000)
+*/
+      const SIGNALING_SERVER_URL = "https://ed8f3843a232.ngrok-free.app"; // ganti jika perlu
+      const STUN_SERVERS = [{ urls: "stun:stun.l.google.com:19302" }];
+
+      const localState = document.getElementById("localState");
+      const joinBtn = document.getElementById("joinBtn");
+      const leaveBtn = document.getElementById("leaveBtn");
+      const startBtn = document.getElementById("startBtn");
+      const shareBtn = document.getElementById("shareBtn");
+      const toggleMicBtn = document.getElementById("toggleMic");
+      const toggleCamBtn = document.getElementById("toggleCam");
+      const roomInput = document.getElementById("roomInput");
+
+      const chatBody = document.getElementById("chatBody");
+      const chatInput = document.getElementById("chatInput");
+      const chatSend = document.getElementById("chatSend");
+
+      const videoGrid = document.getElementById("videoGrid");
+
+      let localStream = null;
+      let localVideoTrack = null;
+      let pcMap = {}; // peerId -> RTCPeerConnection
+      let dataChannels = {}; // peerId -> dataChannel
+      let peers = new Set();
+      let ws;
+      const myId = Math.random().toString(36).substr(2, 9);
+
+      function log(...a) {
+        console.log("[client]", ...a);
+      }
+
+      function addMessage(text, who = "me") {
+        const d = document.createElement("div");
+        d.className = "msg " + (who === "me" ? "me" : "them");
+        d.textContent = text;
+        chatBody.appendChild(d);
+        chatBody.scrollTop = chatBody.scrollHeight;
+      }
+
+      function createVideoElement(id, label, muted = false) {
+        let wrap = document.getElementById("p-" + id);
+        if (wrap) return wrap.querySelector("video");
+        wrap = document.createElement("div");
+        wrap.className = "participant";
+        wrap.id = "p-" + id;
+        const v = document.createElement("video");
+        v.autoplay = true;
+        v.playsInline = true;
+        v.muted = muted;
+        wrap.appendChild(v);
+        const lbl = document.createElement("div");
+        lbl.className = "label";
+        lbl.textContent = label || id;
+        wrap.appendChild(lbl);
+        videoGrid.appendChild(wrap);
+        return v;
+      }
+
+      function removePeerElement(id) {
+        const el = document.getElementById("p-" + id);
+        if (el) el.remove();
+      }
+
+      async function startLocalMedia() {
+        try {
+          localStream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: true,
+          });
+          localVideoTrack = localStream.getVideoTracks()[0];
+          const v = createVideoElement(myId, "Anda", true);
+          v.srcObject = localStream;
+          localState.textContent = "Cam & Mic aktif";
+        } catch (e) {
+          alert("Gagal akses cam/mic: " + e.message);
+        }
+      }
+
+      function connectSignaling() {
+        const room = roomInput.value.trim() || "default";
+        ws = new WebSocket(SIGNALING_SERVER_URL);
+        ws.onopen = () => {
+          log("WS open, joining", room);
+          ws.send(JSON.stringify({ type: "join", room, from: myId }));
+          localState.textContent = "Tersambung ke signaling";
+          joinBtn.disabled = true;
+        };
+        ws.onmessage = async (ev) => {
+          let data;
+          try {
+            data = JSON.parse(ev.data);
+          } catch (e) {
+            return;
+          }
+          const { type } = data;
+          if (type === "peers") {
+            const { peers: existing } = data;
+            log("Existing peers:", existing);
+            // create offer to each existing peer (new client initiates offers)
+            for (const peerId of existing) {
+              if (peerId === myId) continue;
+              await preparePeerConnection(peerId, true); // isInitiator = true
+            }
+          } else if (type === "new-peer") {
+            const id = data.id;
+            log("New peer joined:", id);
+            // An existing client: wait for offers from the new client. No action required here.
+            // But ensure PC object exists so answer can be created when offer arrives.
+          } else if (type === "offer") {
+            const from = data.from;
+            const offer = data.payload;
+            log("Got offer from", from);
+            await preparePeerConnection(from, false); // ensure pc exists
+            const pc = pcMap[from];
+            await pc.setRemoteDescription(new RTCSessionDescription(offer));
+            const answer = await pc.createAnswer();
+            await pc.setLocalDescription(answer);
+            ws.send(
+              JSON.stringify({
+                type: "answer",
+                from: myId,
+                to: from,
+                payload: pc.localDescription,
+              })
+            );
+          } else if (type === "answer") {
+            const from = data.from;
+            const answer = data.payload;
+            log("Got answer from", from);
+            const pc = pcMap[from];
+            if (pc)
+              await pc.setRemoteDescription(new RTCSessionDescription(answer));
+          } else if (type === "ice") {
+            const from = data.from;
+            const candidate = data.payload;
+            const pc = pcMap[from];
+            if (pc && candidate) {
+              try {
+                await pc.addIceCandidate(candidate);
+              } catch (e) {
+                console.warn(e);
+              }
+            }
+          } else if (type === "peer-left") {
+            const id = data.id;
+            cleanupPeer(id);
+            log("peer-left", id);
+          }
+        };
+        ws.onclose = () => {
+          localState.textContent = "Signaling terputus";
+          joinBtn.disabled = false;
+        };
+      }
+
+      async function preparePeerConnection(peerId, isInitiator) {
+        if (pcMap[peerId]) return pcMap[peerId];
+        log("Prepare PC for", peerId, "initiator?", isInitiator);
+        const pc = new RTCPeerConnection({ iceServers: STUN_SERVERS });
+        pcMap[peerId] = pc;
+        peers.add(peerId);
+
+        // add local tracks
+        if (localStream) {
+          localStream.getTracks().forEach((t) => pc.addTrack(t, localStream));
+        }
+
+        // data channel: if initiator, create and send; else, wait for ondatachannel
+        if (isInitiator) {
+          const dc = pc.createDataChannel("chat");
+          setupDataChannel(peerId, dc);
+        } else {
+          pc.ondatachannel = (ev) => setupDataChannel(peerId, ev.channel);
+        }
+
+        pc.onicecandidate = (e) => {
+          if (e.candidate) {
+            ws.send(
+              JSON.stringify({
+                type: "ice",
+                from: myId,
+                to: peerId,
+                payload: e.candidate,
+              })
+            );
+          }
+        };
+
+        pc.ontrack = (ev) => {
+          // for each stream, show video in grid
+          log("ontrack from", peerId, ev.streams);
+          // Some browsers send multiple tracks into same stream; pick first stream
+          const stream = ev.streams[0];
+          const v = createVideoElement(peerId, peerId);
+          v.srcObject = stream;
+        };
+
+        // If initiator, create offer and send
+        if (isInitiator) {
+          const offer = await pc.createOffer();
+          await pc.setLocalDescription(offer);
+          ws.send(
+            JSON.stringify({
+              type: "offer",
+              from: myId,
+              to: peerId,
+              payload: pc.localDescription,
+            })
+          );
+        }
+
+        return pc;
+      }
+
+      function setupDataChannel(peerId, dc) {
+        dataChannels[peerId] = dc;
+        dc.onopen = () => {
+          log("DC open", peerId);
+          addMessage(`Terhubung ke ${peerId}`, "them");
+        };
+        dc.onclose = () => {
+          log("DC close", peerId);
+        };
+        dc.onmessage = (ev) => {
+          addMessage(ev.data, "them");
+        };
+      }
+
+      function cleanupPeer(peerId) {
+        try {
+          if (pcMap[peerId]) {
+            pcMap[peerId].close();
+            delete pcMap[peerId];
+          }
+          if (dataChannels[peerId]) delete dataChannels[peerId];
+          peers.delete(peerId);
+          removePeerElement(peerId);
+        } catch (e) {
+          console.warn(e);
+        }
+      }
+
+      function leaveRoom() {
+        // close all pcs
+        Object.keys(pcMap).forEach((id) => cleanupPeer(id));
+        // notify server
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({ type: "leave", from: myId }));
+          ws.close();
+        }
+        localState.textContent = "Keluar dari room";
+      }
+
+      async function shareScreen() {
+        if (!localStream) {
+          alert("Mulai Cam/Mic dulu");
+          return;
+        }
+        try {
+          const displayStream = await navigator.mediaDevices.getDisplayMedia({
+            video: true,
+          });
+          const displayTrack = displayStream.getVideoTracks()[0];
+          // replace sender track (video) in each pc
+          Object.values(pcMap).forEach((pc) => {
+            const sender = pc
+              .getSenders()
+              .find((s) => s.track && s.track.kind === "video");
+            if (sender) sender.replaceTrack(displayTrack);
+          });
+          // also replace local preview
+          const localVideoEl = createVideoElement(myId, "Anda", true);
+          localVideoEl.srcObject = displayStream;
+
+          displayTrack.onended = async () => {
+            // switch back to camera
+            Object.values(pcMap).forEach((pc) => {
+              const sender = pc
+                .getSenders()
+                .find((s) => s.track && s.track.kind === "video");
+              if (sender && localVideoTrack)
+                sender.replaceTrack(localVideoTrack);
+            });
+            // restore local preview
+            const preview = createVideoElement(myId, "Anda", true);
+            preview.srcObject = localStream;
+          };
+        } catch (e) {
+          console.warn("Share screen error", e);
+        }
+      }
+
+      function toggleMute() {
+        if (!localStream) return;
+        const at = localStream.getAudioTracks()[0];
+        if (!at) return;
+        at.enabled = !at.enabled;
+        toggleMicBtn.textContent = at.enabled ? "Mute Mic" : "Unmute Mic";
+      }
+
+      function toggleCam() {
+        if (!localStream) return;
+        const vt = localStream.getVideoTracks()[0];
+        if (!vt) return;
+        vt.enabled = !vt.enabled;
+        toggleCamBtn.textContent = vt.enabled ? "Stop Cam" : "Start Cam";
+      }
+
+      joinBtn.onclick = () => {
+        connectSignaling();
+      };
+
+      leaveBtn.onclick = () => {
+        leaveRoom();
+      };
+
+      startBtn.onclick = async () => {
+        await startLocalMedia();
+      };
+
+      shareBtn.onclick = () => shareScreen();
+
+      toggleMicBtn.onclick = () => toggleMute();
+      toggleCamBtn.onclick = () => toggleCam();
+
+      chatSend.onclick = () => {
+        const txt = chatInput.value.trim();
+        if (!txt) return;
+        // send through all datachannels
+        Object.values(dataChannels).forEach((dc) => {
+          if (dc.readyState === "open") dc.send(txt);
+        });
+        addMessage(txt, "me");
+        chatInput.value = "";
+      };
+
+      // beforeunload - attempt to notify server
+      window.addEventListener("beforeunload", () => {
+        try {
+          if (ws && ws.readyState === WebSocket.OPEN)
+            ws.send(JSON.stringify({ type: "leave", from: myId }));
+        } catch (e) {}
+      });
+    </script>
+  </body>
+</html>
