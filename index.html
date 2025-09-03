@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Mini Conference (WebRTC Mesh)</title>
+    <title>Firdy Meet</title>
     <style>
       :root {
         --bg: #071028;
@@ -18,7 +18,7 @@
       }
       body {
         margin: 0;
-        font-family: Inter, system-ui, Arial;
+        font-family: "Inter", system-ui, Arial;
         background: radial-gradient(
             800px 400px at 10% 0%,
             #112248 0%,
@@ -35,44 +35,52 @@
         display: flex;
         align-items: center;
         gap: 12px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-        backdrop-filter: blur(6px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(8px);
+        background: rgba(15, 23, 48, 0.6);
       }
       .brand {
         display: flex;
         align-items: center;
         gap: 10px;
         font-weight: 800;
+        font-size: 1.2rem;
       }
       .brand .logo {
         width: 36px;
         height: 36px;
         border-radius: 8px;
         background: linear-gradient(135deg, var(--accent), var(--accent-2));
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
       }
       .top-controls {
         margin-left: auto;
         display: flex;
-        gap: 8px;
+        gap: 10px;
         align-items: center;
       }
       .btn {
         background: #0b1630;
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        padding: 8px 12px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 8px 14px;
         border-radius: 10px;
         cursor: pointer;
-        font-weight: 700;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        color: var(--text);
+      }
+      .btn:hover {
+        background: rgba(91, 140, 255, 0.15);
       }
       .btn.primary {
         background: linear-gradient(180deg, #12264f, #0b1630);
+        border: 1px solid rgba(91, 140, 255, 0.5);
       }
       .container {
         display: flex;
         gap: 16px;
         padding: 16px;
-        max-width: 1200px;
+        max-width: 1300px;
         margin: 14px auto;
         width: calc(100% - 40px);
         flex: 1;
@@ -81,13 +89,14 @@
         width: 320px;
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: 14px;
       }
       .card {
         background: linear-gradient(180deg, var(--card), #070a1a);
-        border-radius: 12px;
-        padding: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.04);
+        border-radius: 14px;
+        padding: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
       }
       .state {
         font-size: 0.9rem;
@@ -96,19 +105,22 @@
       }
       .grid-wrap {
         flex: 1;
+        display: flex;
+        flex-direction: column;
       }
       .video-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 12px;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 14px;
       }
       .participant {
         position: relative;
-        border-radius: 12px;
+        border-radius: 14px;
         overflow: hidden;
         background: #000;
-        min-height: 140px;
-        border: 1px solid rgba(255, 255, 255, 0.04);
+        min-height: 180px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
       }
       .participant video {
         width: 100%;
@@ -116,15 +128,33 @@
         object-fit: cover;
         background: #000;
         display: block;
+        cursor: pointer;
       }
       .label {
         position: absolute;
-        left: 8px;
-        bottom: 8px;
-        background: rgba(0, 0, 0, 0.45);
-        padding: 6px 8px;
+        left: 10px;
+        bottom: 10px;
+        background: rgba(0, 0, 0, 0.55);
+        padding: 6px 10px;
         border-radius: 8px;
-        font-weight: 700;
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+      .fullscreen-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(0, 0, 0, 0.55);
+        border: none;
+        color: var(--text);
+        font-size: 0.85rem;
+        padding: 6px 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .fullscreen-btn:hover {
+        background: rgba(91, 140, 255, 0.4);
       }
       .controls-row {
         display: flex;
@@ -186,7 +216,7 @@
     <header>
       <div class="brand">
         <div class="logo"></div>
-        <div>Mini Conference</div>
+        <div>Firdy Meet</div>
       </div>
       <div class="top-controls">
         <button id="joinBtn" class="btn primary">Join Room</button>
@@ -207,18 +237,7 @@
           </div>
           <div style="margin-top: 10px" class="controls-row">
             <label style="font-size: 0.9rem; color: var(--muted)">Room:</label>
-            <input
-              id="roomInput"
-              type="text"
-              value="demo-room"
-              style="
-                padding: 6px;
-                border-radius: 8px;
-                border: 1px solid rgba(255, 255, 255, 0.06);
-                background: transparent;
-                color: var(--text);
-              "
-            />
+            <input id="roomInput" type="text" value="demo-room" />
           </div>
           <div style="margin-top: 8px; color: var(--muted); font-size: 0.85rem">
             Buka client.html di beberapa tab/perangkat, pastikan URL signaling
@@ -245,11 +264,8 @@
     </div>
 
     <script>
-      /*
-  Client for mesh multi-user WebRTC using WebSocket signaling
-  Make sure to set SIGNALING_SERVER_URL to your server (ws://localhost:3000)
-*/
-      const SIGNALING_SERVER_URL = "https://ed8f3843a232.ngrok-free.app"; // ganti jika perlu
+      // alamat signaling server kamu
+      const SIGNALING_SERVER_URL = "https://ed8f3843a232.ngrok-free.app";
       const STUN_SERVERS = [{ urls: "stun:stun.l.google.com:19302" }];
 
       const localState = document.getElementById("localState");
@@ -264,20 +280,14 @@
       const chatBody = document.getElementById("chatBody");
       const chatInput = document.getElementById("chatInput");
       const chatSend = document.getElementById("chatSend");
-
       const videoGrid = document.getElementById("videoGrid");
 
       let localStream = null;
       let localVideoTrack = null;
-      let pcMap = {}; // peerId -> RTCPeerConnection
-      let dataChannels = {}; // peerId -> dataChannel
-      let peers = new Set();
+      let pcMap = {};
+      let dataChannels = {};
       let ws;
       const myId = Math.random().toString(36).substr(2, 9);
-
-      function log(...a) {
-        console.log("[client]", ...a);
-      }
 
       function addMessage(text, who = "me") {
         const d = document.createElement("div");
@@ -293,15 +303,32 @@
         wrap = document.createElement("div");
         wrap.className = "participant";
         wrap.id = "p-" + id;
+
         const v = document.createElement("video");
         v.autoplay = true;
         v.playsInline = true;
         v.muted = muted;
         wrap.appendChild(v);
+
         const lbl = document.createElement("div");
         lbl.className = "label";
         lbl.textContent = label || id;
         wrap.appendChild(lbl);
+
+        const fsBtn = document.createElement("button");
+        fsBtn.textContent = "⛶";
+        fsBtn.className = "fullscreen-btn";
+        fsBtn.onclick = () => {
+          if (wrap.requestFullscreen) wrap.requestFullscreen();
+          else if (wrap.webkitRequestFullscreen) wrap.webkitRequestFullscreen();
+        };
+        wrap.appendChild(fsBtn);
+
+        v.ondblclick = () => {
+          if (wrap.requestFullscreen) wrap.requestFullscreen();
+          else if (wrap.webkitRequestFullscreen) wrap.webkitRequestFullscreen();
+        };
+
         videoGrid.appendChild(wrap);
         return v;
       }
@@ -330,97 +357,46 @@
         const room = roomInput.value.trim() || "default";
         ws = new WebSocket(SIGNALING_SERVER_URL);
         ws.onopen = () => {
-          log("WS open, joining", room);
           ws.send(JSON.stringify({ type: "join", room, from: myId }));
           localState.textContent = "Tersambung ke signaling";
-          joinBtn.disabled = true;
         };
         ws.onmessage = async (ev) => {
-          let data;
-          try {
-            data = JSON.parse(ev.data);
-          } catch (e) {
-            return;
-          }
+          const data = JSON.parse(ev.data);
           const { type } = data;
           if (type === "peers") {
-            const { peers: existing } = data;
-            log("Existing peers:", existing);
-            // create offer to each existing peer (new client initiates offers)
-            for (const peerId of existing) {
-              if (peerId === myId) continue;
-              await preparePeerConnection(peerId, true); // isInitiator = true
+            for (const peerId of data.peers) {
+              if (peerId !== myId) await preparePeer(peerId, true);
             }
-          } else if (type === "new-peer") {
-            const id = data.id;
-            log("New peer joined:", id);
-            // An existing client: wait for offers from the new client. No action required here.
-            // But ensure PC object exists so answer can be created when offer arrives.
           } else if (type === "offer") {
-            const from = data.from;
-            const offer = data.payload;
-            log("Got offer from", from);
-            await preparePeerConnection(from, false); // ensure pc exists
-            const pc = pcMap[from];
-            await pc.setRemoteDescription(new RTCSessionDescription(offer));
+            const pc = await preparePeer(data.from, false);
+            await pc.setRemoteDescription(data.payload);
             const answer = await pc.createAnswer();
             await pc.setLocalDescription(answer);
             ws.send(
               JSON.stringify({
                 type: "answer",
                 from: myId,
-                to: from,
-                payload: pc.localDescription,
+                to: data.from,
+                payload: answer,
               })
             );
           } else if (type === "answer") {
-            const from = data.from;
-            const answer = data.payload;
-            log("Got answer from", from);
-            const pc = pcMap[from];
-            if (pc)
-              await pc.setRemoteDescription(new RTCSessionDescription(answer));
+            await pcMap[data.from].setRemoteDescription(data.payload);
           } else if (type === "ice") {
-            const from = data.from;
-            const candidate = data.payload;
-            const pc = pcMap[from];
-            if (pc && candidate) {
-              try {
-                await pc.addIceCandidate(candidate);
-              } catch (e) {
-                console.warn(e);
-              }
-            }
+            await pcMap[data.from].addIceCandidate(data.payload);
           } else if (type === "peer-left") {
-            const id = data.id;
-            cleanupPeer(id);
-            log("peer-left", id);
+            removePeerElement(data.id);
           }
-        };
-        ws.onclose = () => {
-          localState.textContent = "Signaling terputus";
-          joinBtn.disabled = false;
         };
       }
 
-      async function preparePeerConnection(peerId, isInitiator) {
+      async function preparePeer(peerId, isInitiator) {
         if (pcMap[peerId]) return pcMap[peerId];
-        log("Prepare PC for", peerId, "initiator?", isInitiator);
         const pc = new RTCPeerConnection({ iceServers: STUN_SERVERS });
         pcMap[peerId] = pc;
-        peers.add(peerId);
 
-        // add local tracks
         if (localStream) {
           localStream.getTracks().forEach((t) => pc.addTrack(t, localStream));
-        }
-
-        // data channel: if initiator, create and send; else, wait for ondatachannel
-        if (isInitiator) {
-          const dc = pc.createDataChannel("chat");
-          setupDataChannel(peerId, dc);
-        } else {
-          pc.ondatachannel = (ev) => setupDataChannel(peerId, ev.channel);
         }
 
         pc.onicecandidate = (e) => {
@@ -437,16 +413,13 @@
         };
 
         pc.ontrack = (ev) => {
-          // for each stream, show video in grid
-          log("ontrack from", peerId, ev.streams);
-          // Some browsers send multiple tracks into same stream; pick first stream
-          const stream = ev.streams[0];
           const v = createVideoElement(peerId, peerId);
-          v.srcObject = stream;
+          v.srcObject = ev.streams[0];
         };
 
-        // If initiator, create offer and send
         if (isInitiator) {
+          const dc = pc.createDataChannel("chat");
+          setupDC(peerId, dc);
           const offer = await pc.createOffer();
           await pc.setLocalDescription(offer);
           ws.send(
@@ -454,143 +427,76 @@
               type: "offer",
               from: myId,
               to: peerId,
-              payload: pc.localDescription,
+              payload: offer,
             })
           );
+        } else {
+          pc.ondatachannel = (e) => setupDC(peerId, e.channel);
         }
-
         return pc;
       }
 
-      function setupDataChannel(peerId, dc) {
+      function setupDC(peerId, dc) {
         dataChannels[peerId] = dc;
-        dc.onopen = () => {
-          log("DC open", peerId);
-          addMessage(`Terhubung ke ${peerId}`, "them");
-        };
-        dc.onclose = () => {
-          log("DC close", peerId);
-        };
-        dc.onmessage = (ev) => {
-          addMessage(ev.data, "them");
-        };
-      }
-
-      function cleanupPeer(peerId) {
-        try {
-          if (pcMap[peerId]) {
-            pcMap[peerId].close();
-            delete pcMap[peerId];
-          }
-          if (dataChannels[peerId]) delete dataChannels[peerId];
-          peers.delete(peerId);
-          removePeerElement(peerId);
-        } catch (e) {
-          console.warn(e);
-        }
+        dc.onmessage = (ev) => addMessage(ev.data, "them");
       }
 
       function leaveRoom() {
-        // close all pcs
-        Object.keys(pcMap).forEach((id) => cleanupPeer(id));
-        // notify server
-        if (ws && ws.readyState === WebSocket.OPEN) {
-          ws.send(JSON.stringify({ type: "leave", from: myId }));
-          ws.close();
-        }
+        Object.keys(pcMap).forEach((id) => {
+          pcMap[id].close();
+          removePeerElement(id);
+        });
+        pcMap = {};
+        if (ws) ws.close();
         localState.textContent = "Keluar dari room";
       }
 
       async function shareScreen() {
-        if (!localStream) {
-          alert("Mulai Cam/Mic dulu");
-          return;
+        if (!localStream) return alert("Start cam/mic dulu");
+        const displayStream = await navigator.mediaDevices.getDisplayMedia({
+          video: true,
+        });
+        const track = displayStream.getVideoTracks()[0];
+        for (let pc of Object.values(pcMap)) {
+          const sender = pc.getSenders().find((s) => s.track.kind === "video");
+          if (sender) sender.replaceTrack(track);
         }
-        try {
-          const displayStream = await navigator.mediaDevices.getDisplayMedia({
-            video: true,
-          });
-          const displayTrack = displayStream.getVideoTracks()[0];
-          // replace sender track (video) in each pc
-          Object.values(pcMap).forEach((pc) => {
+        track.onended = () => {
+          for (let pc of Object.values(pcMap)) {
             const sender = pc
               .getSenders()
-              .find((s) => s.track && s.track.kind === "video");
-            if (sender) sender.replaceTrack(displayTrack);
-          });
-          // also replace local preview
-          const localVideoEl = createVideoElement(myId, "Anda", true);
-          localVideoEl.srcObject = displayStream;
-
-          displayTrack.onended = async () => {
-            // switch back to camera
-            Object.values(pcMap).forEach((pc) => {
-              const sender = pc
-                .getSenders()
-                .find((s) => s.track && s.track.kind === "video");
-              if (sender && localVideoTrack)
-                sender.replaceTrack(localVideoTrack);
-            });
-            // restore local preview
-            const preview = createVideoElement(myId, "Anda", true);
-            preview.srcObject = localStream;
-          };
-        } catch (e) {
-          console.warn("Share screen error", e);
-        }
+              .find((s) => s.track.kind === "video");
+            if (sender) sender.replaceTrack(localVideoTrack);
+          }
+        };
       }
 
-      function toggleMute() {
-        if (!localStream) return;
-        const at = localStream.getAudioTracks()[0];
-        if (!at) return;
-        at.enabled = !at.enabled;
-        toggleMicBtn.textContent = at.enabled ? "Mute Mic" : "Unmute Mic";
-      }
-
-      function toggleCam() {
-        if (!localStream) return;
-        const vt = localStream.getVideoTracks()[0];
-        if (!vt) return;
-        vt.enabled = !vt.enabled;
-        toggleCamBtn.textContent = vt.enabled ? "Stop Cam" : "Start Cam";
-      }
-
-      joinBtn.onclick = () => {
-        connectSignaling();
-      };
-
-      leaveBtn.onclick = () => {
-        leaveRoom();
-      };
-
-      startBtn.onclick = async () => {
-        await startLocalMedia();
-      };
-
-      shareBtn.onclick = () => shareScreen();
-
-      toggleMicBtn.onclick = () => toggleMute();
-      toggleCamBtn.onclick = () => toggleCam();
-
+      // tombol
+      startBtn.onclick = startLocalMedia;
+      joinBtn.onclick = connectSignaling;
+      leaveBtn.onclick = leaveRoom;
+      shareBtn.onclick = shareScreen;
       chatSend.onclick = () => {
-        const txt = chatInput.value.trim();
-        if (!txt) return;
-        // send through all datachannels
-        Object.values(dataChannels).forEach((dc) => {
-          if (dc.readyState === "open") dc.send(txt);
-        });
-        addMessage(txt, "me");
+        const msg = chatInput.value.trim();
+        if (!msg) return;
+        addMessage(msg, "me");
+        for (let dc of Object.values(dataChannels)) {
+          if (dc.readyState === "open") dc.send(msg);
+        }
         chatInput.value = "";
       };
-
-      // beforeunload - attempt to notify server
-      window.addEventListener("beforeunload", () => {
-        try {
-          if (ws && ws.readyState === WebSocket.OPEN)
-            ws.send(JSON.stringify({ type: "leave", from: myId }));
-        } catch (e) {}
-      });
+      toggleMicBtn.onclick = () => {
+        if (!localStream) return;
+        const t = localStream.getAudioTracks()[0];
+        t.enabled = !t.enabled;
+        toggleMicBtn.textContent = t.enabled ? "Mute Mic" : "Unmute Mic";
+      };
+      toggleCamBtn.onclick = () => {
+        if (!localStream) return;
+        const t = localStream.getVideoTracks()[0];
+        t.enabled = !t.enabled;
+        toggleCamBtn.textContent = t.enabled ? "Stop Cam" : "Start Cam";
+      };
     </script>
   </body>
 </html>
