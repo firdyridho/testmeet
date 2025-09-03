@@ -3,499 +3,269 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Firdy Meet</title>
+    <title>Firdy Meet — Home</title>
     <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap");
+
       :root {
-        --bg: #071028;
-        --card: #0f1730;
-        --muted: #9fb0d3;
-        --accent: #5b8cff;
-        --accent-2: #5ee1b6;
-        --text: #e6eefc;
+        --bg: linear-gradient(135deg, #e0f2fe, #f5f9ff);
+        --card: #ffffff;
+        --accent: #3b82f6;
+        --accent-2: #60a5fa;
+        --text: #1e293b;
+        --muted: #64748b;
       }
+
       * {
         box-sizing: border-box;
-      }
-      body {
         margin: 0;
-        font-family: "Inter", system-ui, Arial;
-        background: radial-gradient(
-            800px 400px at 10% 0%,
-            #112248 0%,
-            #071028 40%
-          ),
-          var(--bg);
+        padding: 0;
+      }
+
+      body {
+        font-family: "Inter", system-ui, sans-serif;
+        background: var(--bg);
         color: var(--text);
         min-height: 100vh;
         display: flex;
         flex-direction: column;
+        animation: fadeInBg 2s ease-in-out;
       }
+
+      @keyframes fadeInBg {
+        from {
+          background-position: 0% 0%;
+        }
+        to {
+          background-position: 100% 100%;
+        }
+      }
+
       header {
-        padding: 12px 18px;
+        padding: 16px 24px;
         display: flex;
         align-items: center;
-        gap: 12px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        border-bottom: 1px solid #e2e8f0;
+        background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(8px);
-        background: rgba(15, 23, 48, 0.6);
       }
+
       .brand {
-        display: flex;
-        align-items: center;
-        gap: 10px;
         font-weight: 800;
-        font-size: 1.2rem;
-      }
-      .brand .logo {
-        width: 36px;
-        height: 36px;
-        border-radius: 8px;
-        background: linear-gradient(135deg, var(--accent), var(--accent-2));
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-      }
-      .top-controls {
-        margin-left: auto;
+        font-size: 1.6rem;
+        color: var(--accent);
         display: flex;
-        gap: 10px;
+        gap: 12px;
         align-items: center;
+        letter-spacing: 1px;
+        animation: titleFade 1.5s ease forwards;
       }
-      .btn {
-        background: #0b1630;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        padding: 8px 14px;
-        border-radius: 10px;
-        cursor: pointer;
-        font-weight: 600;
-        transition: all 0.2s ease;
-        color: var(--text);
+
+      .brand-logo {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        animation: logoBounce 2s infinite;
       }
-      .btn:hover {
-        background: rgba(91, 140, 255, 0.15);
+
+      @keyframes logoBounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-6px);
+        }
       }
-      .btn.primary {
-        background: linear-gradient(180deg, #12264f, #0b1630);
-        border: 1px solid rgba(91, 140, 255, 0.5);
-      }
-      .container {
-        display: flex;
-        gap: 16px;
-        padding: 16px;
-        max-width: 1300px;
-        margin: 14px auto;
-        width: calc(100% - 40px);
+
+      main {
         flex: 1;
-      }
-      .left-panel {
-        width: 320px;
         display: flex;
-        flex-direction: column;
-        gap: 14px;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
       }
+
       .card {
-        background: linear-gradient(180deg, var(--card), #070a1a);
-        border-radius: 14px;
-        padding: 14px;
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        background: var(--card);
+        border-radius: 16px;
+        padding: 32px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        max-width: 420px;
+        width: 100%;
+        text-align: center;
+        animation: cardAppear 1s ease forwards;
+        opacity: 0;
+        transform: translateY(20px);
       }
-      .state {
-        font-size: 0.9rem;
+
+      @keyframes cardAppear {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .card h1 {
+        font-size: 1.8rem;
+        color: var(--accent);
+        margin-bottom: 16px;
+        animation: titleFade 1.5s ease forwards;
+      }
+
+      @keyframes titleFade {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .card p,
+      .card small {
+        font-size: 0.95rem;
         color: var(--muted);
-        margin-top: 6px;
+        margin-bottom: 20px;
+        line-height: 1.4;
       }
-      .grid-wrap {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-      }
-      .video-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-        gap: 14px;
-      }
-      .participant {
+
+      .form-group {
+        margin-bottom: 16px;
+        text-align: left;
         position: relative;
-        border-radius: 14px;
         overflow: hidden;
-        background: #000;
-        min-height: 180px;
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
       }
-      .participant video {
+
+      .form-group label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: block;
+        margin-bottom: 6px;
+        color: var(--accent-2);
+      }
+
+      .form-group input {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        transition: all 0.3s;
+        outline: none;
+      }
+
+      .form-group input:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+      }
+
+      .btn {
+        width: 100%;
+        padding: 14px;
+        border-radius: 12px;
+        border: none;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        position: relative;
+        overflow: hidden;
+        z-index: 0;
+      }
+
+      .btn.primary {
+        background: var(--accent);
+        color: #fff;
+      }
+
+      .btn.primary::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
         width: 100%;
         height: 100%;
-        object-fit: cover;
-        background: #000;
-        display: block;
-        cursor: pointer;
+        background: linear-gradient(
+          120deg,
+          rgba(255, 255, 255, 0.3),
+          rgba(255, 255, 255, 0)
+        );
+        transition: all 0.5s;
+        z-index: 1;
       }
-      .label {
-        position: absolute;
-        left: 10px;
-        bottom: 10px;
-        background: rgba(0, 0, 0, 0.55);
-        padding: 6px 10px;
-        border-radius: 8px;
-        font-weight: 600;
-        font-size: 0.9rem;
+
+      .btn.primary:hover::before {
+        left: 100%;
       }
-      .fullscreen-btn {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background: rgba(0, 0, 0, 0.55);
-        border: none;
-        color: var(--text);
+
+      .btn.primary:hover {
+        background: var(--accent-2);
+        color: #fff;
+      }
+
+      footer {
+        padding: 16px;
+        text-align: center;
         font-size: 0.85rem;
-        padding: 6px 10px;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.2s;
-      }
-      .fullscreen-btn:hover {
-        background: rgba(91, 140, 255, 0.4);
-      }
-      .controls-row {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-      }
-      .chatbox {
-        height: 220px;
-        display: flex;
-        flex-direction: column;
-      }
-      .chat-body {
-        flex: 1;
-        overflow: auto;
-        padding: 8px;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
-      .msg {
-        padding: 8px 10px;
-        border-radius: 10px;
-        max-width: 85%;
-      }
-      .msg.me {
-        align-self: flex-end;
-        background: rgba(91, 140, 255, 0.14);
-        border: 1px solid rgba(91, 140, 255, 0.3);
-      }
-      .msg.them {
-        align-self: flex-start;
-        background: rgba(94, 225, 182, 0.08);
-        border: 1px solid rgba(94, 225, 182, 0.2);
-      }
-      .input-row {
-        display: flex;
-        gap: 8px;
-        margin-top: 8px;
-      }
-      input[type="text"] {
-        flex: 1;
-        padding: 8px;
-        border-radius: 8px;
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        background: rgba(255, 255, 255, 0.02);
-        color: var(--text);
-      }
-      @media (max-width: 900px) {
-        .container {
-          flex-direction: column;
-        }
-        .left-panel {
-          width: 100%;
-        }
+        color: var(--muted);
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(6px);
       }
     </style>
   </head>
   <body>
     <header>
-      <div class="brand">
-        <div class="logo"></div>
-        <div>Firdy Meet</div>
-      </div>
-      <div class="top-controls">
-        <button id="joinBtn" class="btn primary">Join Room</button>
-        <button id="leaveBtn" class="btn">Leave</button>
-      </div>
+      <div class="brand">Firdy Meet</div>
     </header>
 
-    <div class="container">
-      <div class="left-panel">
-        <div class="card">
-          <div style="font-weight: 800">Pengaturan</div>
-          <div class="state" id="localState">Belum tersambung</div>
-          <div style="margin-top: 10px" class="controls-row">
-            <button id="startBtn" class="btn">Start Cam/Mic</button>
-            <button id="shareBtn" class="btn">Share Screen</button>
-            <button id="toggleMic" class="btn">Mute Mic</button>
-            <button id="toggleCam" class="btn">Stop Cam</button>
-          </div>
-          <div style="margin-top: 10px" class="controls-row">
-            <label style="font-size: 0.9rem; color: var(--muted)">Room:</label>
-            <input id="roomInput" type="text" value="demo-room" />
-          </div>
-          <div style="margin-top: 8px; color: var(--muted); font-size: 0.85rem">
-            Buka client.html di beberapa tab/perangkat, pastikan URL signaling
-            (ws) benar.
-          </div>
+    <main>
+      <div class="card">
+        <h1>Mulai Meeting</h1>
+        <p>
+          Masukkan nama dan Room ID untuk membuat atau bergabung ke Firdy Meet.
+        </p>
+        <div class="form-group">
+          <label for="nameInput">Nama Anda</label>
+          <input id="nameInput" type="text" placeholder="Contoh: Agoy" />
         </div>
-
-        <div class="card chatbox">
-          <div style="font-weight: 800">Chat</div>
-          <div id="chatBody" class="chat-body"></div>
-          <div class="input-row">
-            <input id="chatInput" type="text" placeholder="Ketik pesan..." />
-            <button id="chatSend" class="btn">Kirim</button>
-          </div>
+        <div class="form-group">
+          <label for="roomInput">Room ID</label>
+          <input
+            id="roomInput"
+            type="text"
+            placeholder="Contoh: kelas-1"
+            value="demo-room"
+          />
         </div>
+        <small
+          >Jika ingin bergabung maka samakan Room ID nya jika ingin membuat maka
+          buat Room ID nya</small
+        >
+        <br /><br />
+        <button id="joinBtn" class="btn primary">Gabung / buat Meeting</button>
       </div>
+    </main>
 
-      <div class="grid-wrap">
-        <div class="card" style="padding: 10px">
-          <div style="font-weight: 800; margin-bottom: 8px">Grid Peserta</div>
-          <div id="videoGrid" class="video-grid"></div>
-        </div>
-      </div>
-    </div>
+    <footer>© 2025 Firdy Meet | Developed By : Firdy Ridho Fillah</footer>
 
     <script>
-      // alamat signaling server kamu
-      const SIGNALING_SERVER_URL = "https://ed8f3843a232.ngrok-free.app";
-      const STUN_SERVERS = [{ urls: "stun:stun.l.google.com:19302" }];
-
-      const localState = document.getElementById("localState");
       const joinBtn = document.getElementById("joinBtn");
-      const leaveBtn = document.getElementById("leaveBtn");
-      const startBtn = document.getElementById("startBtn");
-      const shareBtn = document.getElementById("shareBtn");
-      const toggleMicBtn = document.getElementById("toggleMic");
-      const toggleCamBtn = document.getElementById("toggleCam");
-      const roomInput = document.getElementById("roomInput");
-
-      const chatBody = document.getElementById("chatBody");
-      const chatInput = document.getElementById("chatInput");
-      const chatSend = document.getElementById("chatSend");
-      const videoGrid = document.getElementById("videoGrid");
-
-      let localStream = null;
-      let localVideoTrack = null;
-      let pcMap = {};
-      let dataChannels = {};
-      let ws;
-      const myId = Math.random().toString(36).substr(2, 9);
-
-      function addMessage(text, who = "me") {
-        const d = document.createElement("div");
-        d.className = "msg " + (who === "me" ? "me" : "them");
-        d.textContent = text;
-        chatBody.appendChild(d);
-        chatBody.scrollTop = chatBody.scrollHeight;
-      }
-
-      function createVideoElement(id, label, muted = false) {
-        let wrap = document.getElementById("p-" + id);
-        if (wrap) return wrap.querySelector("video");
-        wrap = document.createElement("div");
-        wrap.className = "participant";
-        wrap.id = "p-" + id;
-
-        const v = document.createElement("video");
-        v.autoplay = true;
-        v.playsInline = true;
-        v.muted = muted;
-        wrap.appendChild(v);
-
-        const lbl = document.createElement("div");
-        lbl.className = "label";
-        lbl.textContent = label || id;
-        wrap.appendChild(lbl);
-
-        const fsBtn = document.createElement("button");
-        fsBtn.textContent = "⛶";
-        fsBtn.className = "fullscreen-btn";
-        fsBtn.onclick = () => {
-          if (wrap.requestFullscreen) wrap.requestFullscreen();
-          else if (wrap.webkitRequestFullscreen) wrap.webkitRequestFullscreen();
-        };
-        wrap.appendChild(fsBtn);
-
-        v.ondblclick = () => {
-          if (wrap.requestFullscreen) wrap.requestFullscreen();
-          else if (wrap.webkitRequestFullscreen) wrap.webkitRequestFullscreen();
-        };
-
-        videoGrid.appendChild(wrap);
-        return v;
-      }
-
-      function removePeerElement(id) {
-        const el = document.getElementById("p-" + id);
-        if (el) el.remove();
-      }
-
-      async function startLocalMedia() {
-        try {
-          localStream = await navigator.mediaDevices.getUserMedia({
-            video: true,
-            audio: true,
-          });
-          localVideoTrack = localStream.getVideoTracks()[0];
-          const v = createVideoElement(myId, "Anda", true);
-          v.srcObject = localStream;
-          localState.textContent = "Cam & Mic aktif";
-        } catch (e) {
-          alert("Gagal akses cam/mic: " + e.message);
+      joinBtn.onclick = () => {
+        const name = document.getElementById("nameInput").value.trim();
+        const room = document.getElementById("roomInput").value.trim();
+        if (!name || !room) {
+          alert("Isi nama dan Room ID terlebih dahulu");
+          return;
         }
-      }
-
-      function connectSignaling() {
-        const room = roomInput.value.trim() || "default";
-        ws = new WebSocket(SIGNALING_SERVER_URL);
-        ws.onopen = () => {
-          ws.send(JSON.stringify({ type: "join", room, from: myId }));
-          localState.textContent = "Tersambung ke signaling";
-        };
-        ws.onmessage = async (ev) => {
-          const data = JSON.parse(ev.data);
-          const { type } = data;
-          if (type === "peers") {
-            for (const peerId of data.peers) {
-              if (peerId !== myId) await preparePeer(peerId, true);
-            }
-          } else if (type === "offer") {
-            const pc = await preparePeer(data.from, false);
-            await pc.setRemoteDescription(data.payload);
-            const answer = await pc.createAnswer();
-            await pc.setLocalDescription(answer);
-            ws.send(
-              JSON.stringify({
-                type: "answer",
-                from: myId,
-                to: data.from,
-                payload: answer,
-              })
-            );
-          } else if (type === "answer") {
-            await pcMap[data.from].setRemoteDescription(data.payload);
-          } else if (type === "ice") {
-            await pcMap[data.from].addIceCandidate(data.payload);
-          } else if (type === "peer-left") {
-            removePeerElement(data.id);
-          }
-        };
-      }
-
-      async function preparePeer(peerId, isInitiator) {
-        if (pcMap[peerId]) return pcMap[peerId];
-        const pc = new RTCPeerConnection({ iceServers: STUN_SERVERS });
-        pcMap[peerId] = pc;
-
-        if (localStream) {
-          localStream.getTracks().forEach((t) => pc.addTrack(t, localStream));
-        }
-
-        pc.onicecandidate = (e) => {
-          if (e.candidate) {
-            ws.send(
-              JSON.stringify({
-                type: "ice",
-                from: myId,
-                to: peerId,
-                payload: e.candidate,
-              })
-            );
-          }
-        };
-
-        pc.ontrack = (ev) => {
-          const v = createVideoElement(peerId, peerId);
-          v.srcObject = ev.streams[0];
-        };
-
-        if (isInitiator) {
-          const dc = pc.createDataChannel("chat");
-          setupDC(peerId, dc);
-          const offer = await pc.createOffer();
-          await pc.setLocalDescription(offer);
-          ws.send(
-            JSON.stringify({
-              type: "offer",
-              from: myId,
-              to: peerId,
-              payload: offer,
-            })
-          );
-        } else {
-          pc.ondatachannel = (e) => setupDC(peerId, e.channel);
-        }
-        return pc;
-      }
-
-      function setupDC(peerId, dc) {
-        dataChannels[peerId] = dc;
-        dc.onmessage = (ev) => addMessage(ev.data, "them");
-      }
-
-      function leaveRoom() {
-        Object.keys(pcMap).forEach((id) => {
-          pcMap[id].close();
-          removePeerElement(id);
-        });
-        pcMap = {};
-        if (ws) ws.close();
-        localState.textContent = "Keluar dari room";
-      }
-
-      async function shareScreen() {
-        if (!localStream) return alert("Start cam/mic dulu");
-        const displayStream = await navigator.mediaDevices.getDisplayMedia({
-          video: true,
-        });
-        const track = displayStream.getVideoTracks()[0];
-        for (let pc of Object.values(pcMap)) {
-          const sender = pc.getSenders().find((s) => s.track.kind === "video");
-          if (sender) sender.replaceTrack(track);
-        }
-        track.onended = () => {
-          for (let pc of Object.values(pcMap)) {
-            const sender = pc
-              .getSenders()
-              .find((s) => s.track.kind === "video");
-            if (sender) sender.replaceTrack(localVideoTrack);
-          }
-        };
-      }
-
-      // tombol
-      startBtn.onclick = startLocalMedia;
-      joinBtn.onclick = connectSignaling;
-      leaveBtn.onclick = leaveRoom;
-      shareBtn.onclick = shareScreen;
-      chatSend.onclick = () => {
-        const msg = chatInput.value.trim();
-        if (!msg) return;
-        addMessage(msg, "me");
-        for (let dc of Object.values(dataChannels)) {
-          if (dc.readyState === "open") dc.send(msg);
-        }
-        chatInput.value = "";
-      };
-      toggleMicBtn.onclick = () => {
-        if (!localStream) return;
-        const t = localStream.getAudioTracks()[0];
-        t.enabled = !t.enabled;
-        toggleMicBtn.textContent = t.enabled ? "Mute Mic" : "Unmute Mic";
-      };
-      toggleCamBtn.onclick = () => {
-        if (!localStream) return;
-        const t = localStream.getVideoTracks()[0];
-        t.enabled = !t.enabled;
-        toggleCamBtn.textContent = t.enabled ? "Stop Cam" : "Start Cam";
+        const url = `meeting.html?room=${encodeURIComponent(
+          room
+        )}&name=${encodeURIComponent(name)}`;
+        window.location.href = url;
       };
     </script>
   </body>
