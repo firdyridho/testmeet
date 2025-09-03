@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Firdy Meet — Meeting</title>
+    <style>
+      :root {
+        --bg: #f5f9ff;
+        --card: #ffffff;
+        --muted: #6b7a99;
+        --accent: #3b82f6;
+        --accent-2: #60a5fa;
+        --text: #1e293b;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: Inter, system-ui, Arial;
+        color: var(--text);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        background: var(--bg);
+      }
+
+      /* ========== MODAL ========== */
+      .modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+      }
+      .modal.hidden {
+        display: none;
+      }
+      .modal-card {
+        width: 100%;
+        max-width: 420px;
+        background: #fff;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+      }
+      .modal-card h2 {
+        margin: 0 0 12px;
+        color: var(--accent);
+        font-size: 1.25rem;
+      }
+      .modal-card .row {
+        margin-bottom: 10px;
+      }
+      .modal-card input {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid #cbd5e1;
+      }
+      .modal-card .btn {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        border: none;
+        background: var(--accent);
+        color: #fff;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .modal-card .btn.secondary {
+        background: #f1f5f9;
+        color: var(--text);
+        border: 1px solid #cbd5e1;
+      }
+
+      /* ========== HEADER ========== */
+      header {
+        padding: 12px 18px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border-bottom: 1px solid #e2e8f0;
+        background: #ffffffcc;
+        backdrop-filter: blur(8px);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+      .brand {
+        font-weight: 800;
+        font-size: 1.2rem;
+        color: var(--accent);
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      .top-controls {
+        margin-left: auto;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .btn {
+        background: #f1f5f9;
+        border: 1px solid #cbd5e1;
+        padding: 8px 14px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        color: var(--text);
+        transition: all 0.15s;
+      }
+      .btn:hover {
+        background: #e2e8f0;
+      }
+      .btn.primary {
+        background: var(--accent);
+        color: #fff;
+        border: none;
+      }
+      .btn.primary:hover {
+        background: var(--accent-2);
+      }
+
+      /* ========== LAYOUT ========== */
+      .container {
+        display: flex;
+        gap: 16px;
+        padding: 16px;
+        max-width: 1400px;
+        margin: auto;
+        width: 100%;
+        flex: 1;
+      }
+      .left-panel {
+        width: 320px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .card {
+        background: var(--card);
+        border-radius: 12px;
+        padding: 14px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
+      .state {
+        font-size: 0.9rem;
+        color: var(--muted);
+        margin-top: 6px;
+      }
+
+      .grid-wrap {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+      .video-area {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .video-grid {
+        display: grid;
+        gap: 12px;
+        align-items: stretch;
+      }
+      .participant {
+        position: relative;
+        border-radius: 10px;
+        overflow: hidden;
+        background: #000;
+        min-height: 120px;
+        border: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .participant video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        cursor: pointer;
+      }
+      .label {
+        position: absolute;
+        left: 10px;
+        bottom: 10px;
+        background: rgba(0, 0, 0, 0.6);
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #fff;
+      }
+      .fs-btn {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: rgba(0, 0, 0, 0.6);
+        border: none;
+        color: #fff;
+        font-size: 0.8rem;
+        padding: 4px 8px;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      .hand-badge {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        background: rgba(59, 130, 246, 0.2);
+        padding: 4px;
+        border-radius: 6px;
+        font-size: 14px;
+        color: var(--accent);
+        display: none;
+      }
+      .raise-btn {
+        display: block;
+        margin-top: 8px;
+        width: 100%;
+      }
+
+      .controls-row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .chatbox {
+        height: 220px;
+        display: flex;
+        flex-direction: column;
+      }
+      .chat-body {
+        flex: 1;
+        overflow: auto;
+        padding: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .msg {
+        padding: 8px 10px;
+        border-radius: 8px;
+        max-width: 85%;
+      }
+      .msg.me {
+        align-self: flex-end;
+        background: #dbeafe;
+        color: #1e40af;
+      }
+      .msg.them {
+        align-self: flex-start;
+        background: #e0f2fe;
+        color: #0369a1;
+      }
+      input[type="text"] {
+        flex: 1;
+        padding: 8px;
+        border-radius: 6px;
+        border: 1px solid #cbd5e1;
+        background: #f8fafc;
+        color: var(--text);
+      }
+
+      .small {
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+
+      @media (max-width: 900px) {
+        .container {
+          flex-direction: column;
+        }
+        .left-panel {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- MODAL JOIN -->
+    <div id="joinModal" class="modal">
+      <div class="modal-card">
+        <h2>Gabung ke Firdy Meet</h2>
+        <div class="row">
+          <input
+            id="modalName"
+            type="text"
+            placeholder="Nama Anda (contoh: Budi)"
+          />
+        </div>
+        <div class="row">
+          <input
+            id="modalRoom"
+            type="text"
+            placeholder="Room ID (contoh: kelas-1)"
+            value="demo-room"
+          />
+        </div>
+        <div style="display: flex; gap: 8px">
+          <button id="modalJoin" class="btn">Join Meeting</button>
+          <button id="modalClose" class="btn secondary">Tutup</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- HEADER -->
+    <header>
+      <div class="brand">
+        <div>Firdy Meet</div>
+      </div>
+      <div class="top-controls">
+        <button id="joinBtn" class="btn primary">Join Room</button>
+        <button id="leaveBtn" class="btn">Leave</button>
+        <button id="toggleLayoutBtn" class="btn">Speaker View</button>
+        <button id="recordBtn" class="btn">Start Recording</button>
+        <button id="homeBtn" class="btn">Kembali Ke Home / Menu</button>
+      </div>
+    </header>
+
+    <!-- MAIN -->
+    <div class="container">
+      <div class="left-panel">
+        <div class="card">
+          <div style="font-weight: 800">Pengaturan</div>
+          <div class="state" id="localState">Belum tersambung</div>
+
+          <div style="margin-top: 10px" class="controls-row">
+            <label class="small">Nama:</label>
+            <input
+              id="nameInput"
+              type="text"
+              value=""
+              style="padding: 6px; border-radius: 8px"
+            />
+          </div>
+
+          <div style="margin-top: 10px" class="controls-row">
+            <label class="small">Room:</label>
+            <input
+              id="roomInput"
+              type="text"
+              value="demo-room"
+              style="padding: 6px; border-radius: 8px"
+            />
+          </div>
+
+          <div style="margin-top: 10px" class="controls-row">
+            <button id="startBtn" class="btn">Start Cam/Mic</button>
+            <button id="shareBtn" class="btn">Share Screen</button>
+            <button id="toggleMic" class="btn">Mute Mic</button>
+            <button id="toggleCam" class="btn">Stop Cam</button>
+          </div>
+
+          <div
+            style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap"
+          >
+            <button id="copyLinkBtn" class="btn">Copy Link</button>
+            <button id="shareLinkBtn" class="btn">Share Link</button>
+          </div>
+
+          <div style="margin-top: 8px" class="small">
+            Buka di beberapa perangkat/tab, pastikan signaling server benar.
+          </div>
+          <button id="raiseHandLocal" class="btn raise-btn">
+            ✋ Raise Hand
+          </button>
+        </div>
+
+        <div class="card chatbox">
+          <div style="font-weight: 800">Chat</div>
+          <div id="chatBody" class="chat-body"></div>
+          <div style="display: flex; gap: 8px; margin-top: 8px">
+            <input id="chatInput" type="text" placeholder="Ketik pesan..." />
+            <button id="chatSend" class="btn">Kirim</button>
+          </div>
+        </div>
+
+        <div class="card small">
+          <div style="font-weight: 700">Recording</div>
+          <div id="recordStatus" class="small" style="margin-top: 6px">
+            Belum merekam
+          </div>
+          <div style="margin-top: 8px" class="small">
+            Rekaman akan disimpan sebagai file .webm
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-wrap">
+        <div class="card video-area" style="padding: 10px">
+          <div
+            style="
+              font-weight: 800;
+              margin-bottom: 6px;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            "
+          >
+            <div>Grid Peserta</div>
+            <div class="small">Mode: <span id="modeLabel">Gallery</span></div>
+          </div>
+          <div id="galleryContainer" class="video-grid"></div>
+
+          <div id="speakerContainer" style="display: none">
+            <div class="speaker-layout">
+              <div id="speakerMain" class="speaker-main"></div>
+              <div class="speaker-thumbs">
+                <div style="font-weight: 700; margin-bottom: 6px">Peserta</div>
+                <div id="speakerThumbs" class="thumb-scroll"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      /* ====== CONFIG ====== */
+      const SIGNALING_SERVER_URL = "https://00fbad93f026.ngrok-free.app"; // ganti sesuai signaling server-mu
+      const STUN_SERVERS = [{ urls: "stun:stun.l.google.com:19302" }];
+
+      /* ====== DOM ====== */
+      const joinModal = document.getElementById("joinModal");
+      const modalName = document.getElementById("modalName");
+      const modalRoom = document.getElementById("modalRoom");
+      const modalJoin = document.getElementById("modalJoin");
+      const modalClose = document.getElementById("modalClose");
+
+      const nameInput = document.getElementById("nameInput");
+      const roomInput = document.getElementById("roomInput");
+      const startBtn = document.getElementById("startBtn");
+      const shareBtn = document.getElementById("shareBtn");
+      const joinBtn = document.getElementById("joinBtn");
+      const leaveBtn = document.getElementById("leaveBtn");
+      const toggleMicBtn = document.getElementById("toggleMic");
+      const toggleCamBtn = document.getElementById("toggleCam");
+      const chatBody = document.getElementById("chatBody");
+      const chatInput = document.getElementById("chatInput");
+      const chatSend = document.getElementById("chatSend");
+      const galleryContainer = document.getElementById("galleryContainer");
+      const speakerContainer = document.getElementById("speakerContainer");
+      const speakerMain = document.getElementById("speakerMain");
+      const speakerThumbs = document.getElementById("speakerThumbs");
+      const toggleLayoutBtn = document.getElementById("toggleLayoutBtn");
+      const modeLabel = document.getElementById("modeLabel");
+      const recordBtn = document.getElementById("recordBtn");
+      const recordStatus = document.getElementById("recordStatus");
+      const raiseHandLocal = document.getElementById("raiseHandLocal");
+      const copyLinkBtn = document.getElementById("copyLinkBtn");
+      const shareLinkBtn = document.getElementById("shareLinkBtn");
+      const localState = document.getElementById("localState");
+
+      /* ====== STATE ====== */
+      let myId = Math.random().toString(36).substr(2, 9);
+      let myName = "Anda";
+      let localStream = null;
+      let localVideoTrack = null;
+      let pcMap = {};
+      let dataChannels = {};
+      let audioAnalyzers = {};
+      let peerNames = {}; // peerId -> name
+      let ws = null;
+      let currentMode = "gallery";
+      let speakerId = null;
+      let speakerPinned = false;
+      let mediaRecorder = null;
+      let recordedChunks = [];
+
+      /* ====== URL PARAMS (auto fill modal) ====== */
+      const params = new URLSearchParams(window.location.search);
+      const urlRoom = params.get("room");
+      const urlName = params.get("name");
+      if (urlRoom) modalRoom.value = urlRoom;
+      if (urlName) modalName.value = urlName;
+
+      // If both provided, auto-join: set inputs and skip modal
+      if (urlRoom && urlName) {
+        nameInput.value = urlName;
+        roomInput.value = urlRoom;
+        joinModal.classList.add("hidden");
+        // We'll auto-start media & join when user clicks Start Cam/Mic or Join Room.
+        // For convenience, auto-start local media and connect:
+        (async () => {
+          myName = urlName;
+          try {
+            await startLocalMedia();
+          } catch (e) {
+            /* ignore */
+          }
+          connectSignaling();
+        })();
+      }
+
+      /* ====== MODAL HANDLERS ====== */
+      modalJoin.onclick = () => {
+        const n = modalName.value.trim();
+        const r = modalRoom.value.trim();
+        if (!n || !r) return alert("Isi Nama dan Room ID dulu.");
+        nameInput.value = n;
+        roomInput.value = r;
+        myName = n;
+        joinModal.classList.add("hidden");
+        // auto start media and join
+        startLocalMedia()
+          .then(() => connectSignaling())
+          .catch((e) => {
+            /*ignore*/
+          });
+      };
+      modalClose.onclick = () => joinModal.classList.add("hidden");
+
+      /* ====== UTIL ====== */
+      function addMessage(txt, who = "me") {
+        const d = document.createElement("div");
+        d.className = "msg " + (who === "me" ? "me" : "them");
+        d.textContent = txt;
+        chatBody.appendChild(d);
+        chatBody.scrollTop = chatBody.scrollHeight;
+      }
+
+      function createParticipantElement(id, label) {
+        let wrapper = document.getElementById("p-" + id);
+        if (wrapper) {
+          // update label if changed
+          const lbl = wrapper.querySelector(".label");
+          if (lbl && label) lbl.textContent = label;
+          return wrapper.querySelector("video");
+        }
+
+        wrapper = document.createElement("div");
+        wrapper.className = "participant";
+        wrapper.id = "p-" + id;
+
+        const v = document.createElement("video");
+        v.autoplay = true;
+        v.playsInline = true;
+        v.muted = id === myId;
+        wrapper.appendChild(v);
+
+        const lbl = document.createElement("div");
+        lbl.className = "label";
+        lbl.textContent = label || id;
+        wrapper.appendChild(lbl);
+
+        const hand = document.createElement("div");
+        hand.className = "hand-badge";
+        hand.style.display = "none";
+        hand.innerHTML = "✋";
+        wrapper.appendChild(hand);
+
+        const fsBtn = document.createElement("button");
+        fsBtn.className = "fs-btn";
+        fsBtn.textContent = "⛶";
+        fsBtn.onclick = (e) => {
+          e.stopPropagation();
+          if (wrapper.requestFullscreen) wrapper.requestFullscreen();
+          else if (wrapper.webkitRequestFullscreen)
+            wrapper.webkitRequestFullscreen();
+        };
+        wrapper.appendChild(fsBtn);
+
+        v.ondblclick = () => {
+          if (wrapper.requestFullscreen) wrapper.requestFullscreen();
+          else if (wrapper.webkitRequestFullscreen)
+            wrapper.webkitRequestFullscreen();
+        };
+
+        wrapper.onclick = (e) => {
+          if (e.target === fsBtn) return;
+          setManualSpeaker(id);
+        };
+
+        // append into gallery
+        const last = galleryContainer.querySelector("#p-" + id);
+        if (last) last.remove();
+        galleryContainer.appendChild(wrapper);
+
+        // thumbs for speaker view
+        const thumb = wrapper.cloneNode(true);
+        thumb.id = "t-" + id;
+        const fsInThumb = thumb.querySelector(".fs-btn");
+        if (fsInThumb) fsInThumb.remove();
+        const oldThumb = speakerThumbs.querySelector("#t-" + id);
+        if (oldThumb) oldThumb.remove();
+        speakerThumbs.appendChild(thumb);
+
+        return v;
+      }
+
+      function updateHandBadge(peerId, show) {
+        const el = document.getElementById("p-" + peerId);
+        if (el) {
+          const hb = el.querySelector(".hand-badge");
+          if (hb) hb.style.display = show ? "block" : "none";
+        }
+        const th = document.getElementById("t-" + peerId);
+        if (th) {
+          const hb = th.querySelector(".hand-badge");
+          if (hb) hb.style.display = show ? "block" : "none";
+        }
+      }
+
+      /* ====== MEDIA ====== */
+      async function startLocalMedia() {
+        try {
+          myName =
+            (nameInput.value && nameInput.value.trim()) || myName || "Anda";
+          localStream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: true,
+          });
+          localVideoTrack = localStream.getVideoTracks()[0];
+          const v = createParticipantElement(myId, myName || "Anda");
+          v.srcObject = localStream;
+          localState.textContent = "Cam & Mic aktif";
+          setupLocalAudioMeter(myId, localStream);
+        } catch (e) {
+          alert("Gagal akses cam/mic: " + (e.message || e));
+          throw e;
+        }
+      }
+
+      async function shareScreen() {
+        if (!localStream) return alert("Mulai Cam/Mic dulu");
+        try {
+          const displayStream = await navigator.mediaDevices.getDisplayMedia({
+            video: true,
+          });
+          const displayTrack = displayStream.getVideoTracks()[0];
+          for (const pc of Object.values(pcMap)) {
+            const sender = pc
+              .getSenders()
+              .find((s) => s.track && s.track.kind === "video");
+            if (sender) sender.replaceTrack(displayTrack);
+          }
+          const v = createParticipantElement(myId, myName + " (Screen)");
+          v.srcObject = displayStream;
+          displayTrack.onended = () => {
+            for (const pc of Object.values(pcMap)) {
+              const sender = pc
+                .getSenders()
+                .find((s) => s.track && s.track.kind === "video");
+              if (sender && localVideoTrack)
+                sender.replaceTrack(localVideoTrack);
+            }
+            const pv = createParticipantElement(myId, myName);
+            pv.srcObject = localStream;
+          };
+        } catch (e) {
+          console.warn("shareScreen error", e);
+        }
+      }
+
+      /* ====== SIGNALING & WEBRTC ====== */
+      function connectSignaling() {
+        const room = roomInput.value.trim() || "default";
+        myName =
+          (nameInput.value && nameInput.value.trim()) || myName || "Anda";
+
+        try {
+          ws = new WebSocket(SIGNALING_SERVER_URL);
+        } catch (e) {
+          alert("Gagal konek ke signaling server: " + e.message);
+          return;
+        }
+
+        ws.onopen = () => {
+          // send join + name
+          ws.send(
+            JSON.stringify({ type: "join", room, from: myId, name: myName })
+          );
+          localState.textContent = "Tersambung ke signaling";
+          joinBtn.disabled = true;
+        };
+
+        ws.onmessage = async (ev) => {
+          let data;
+          try {
+            data = JSON.parse(ev.data);
+          } catch {
+            return;
+          }
+          const { type } = data;
+
+          if (type === "peers") {
+            // server may send peers as array of strings or array of {id,name}
+            const existing = data.peers || [];
+            for (const p of existing) {
+              let pid, pname;
+              if (typeof p === "string") {
+                pid = p;
+                pname = null;
+              } else if (p && typeof p === "object") {
+                pid = p.id;
+                pname = p.name;
+              } else continue;
+              if (pid === myId) continue;
+              if (pname) peerNames[pid] = pname;
+              await preparePeer(pid, true, pname || pid);
+            }
+          } else if (type === "offer") {
+            const from = data.from;
+            const fromName = data.name || data.senderName || null;
+            if (fromName) peerNames[from] = fromName;
+            await preparePeer(from, false, peerNames[from] || from);
+            const pc = pcMap[from];
+            if (!pc) return;
+            await pc.setRemoteDescription(
+              new RTCSessionDescription(data.payload)
+            );
+            const answer = await pc.createAnswer();
+            await pc.setLocalDescription(answer);
+            ws.send(
+              JSON.stringify({
+                type: "answer",
+                from: myId,
+                name: myName,
+                to: from,
+                payload: pc.localDescription,
+              })
+            );
+          } else if (type === "answer") {
+            const from = data.from;
+            const pc = pcMap[from];
+            if (pc) {
+              await pc.setRemoteDescription(
+                new RTCSessionDescription(data.payload)
+              );
+              const fromName = data.name || null;
+              if (fromName) peerNames[from] = fromName;
+              // update label if needed
+              const v = document.getElementById("p-" + from);
+              if (v && peerNames[from]) {
+                const lbl = v.querySelector(".label");
+                if (lbl) lbl.textContent = peerNames[from];
+              }
+            }
+          } else if (type === "ice") {
+            const from = data.from;
+            const pc = pcMap[from];
+            if (pc) {
+              try {
+                await pc.addIceCandidate(data.payload);
+              } catch (e) {
+                console.warn(e);
+              }
+            }
+          } else if (type === "peer-left") {
+            const id = data.id;
+            cleanupPeer(id);
+          }
+        };
+
+        ws.onclose = () => {
+          localState.textContent = "Signaling terputus";
+          joinBtn.disabled = false;
+        };
+
+        ws.onerror = (e) => {
+          console.warn("ws error", e);
+        };
+      }
+
+      async function preparePeer(peerId, isInitiator, peerLabel = null) {
+        if (pcMap[peerId]) return pcMap[peerId];
+        const pc = new RTCPeerConnection({ iceServers: STUN_SERVERS });
+        pcMap[peerId] = pc;
+
+        // add local tracks
+        if (localStream)
+          localStream.getTracks().forEach((t) => pc.addTrack(t, localStream));
+
+        // datachannel
+        if (isInitiator) {
+          const dc = pc.createDataChannel("chat");
+          setupDataChannel(peerId, dc);
+        } else {
+          pc.ondatachannel = (e) => setupDataChannel(peerId, e.channel);
+        }
+
+        pc.onicecandidate = (e) => {
+          if (e.candidate && ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(
+              JSON.stringify({
+                type: "ice",
+                from: myId,
+                to: peerId,
+                payload: e.candidate,
+              })
+            );
+          }
+        };
+
+        pc.ontrack = (ev) => {
+          const stream = ev.streams[0];
+          // use peerNames if available, else fallback to peerId
+          const lbl = peerNames[peerId] || peerLabel || peerId;
+          const v = createParticipantElement(peerId, lbl);
+          v.srcObject = stream;
+          setupRemoteAudioMeter(peerId, stream);
+        };
+
+        if (isInitiator) {
+          const offer = await pc.createOffer();
+          await pc.setLocalDescription(offer);
+          // include name so peer can label us
+          if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(
+              JSON.stringify({
+                type: "offer",
+                from: myId,
+                name: myName,
+                to: peerId,
+                payload: pc.localDescription,
+              })
+            );
+          }
+        }
+
+        return pc;
+      }
+
+      function setupDataChannel(peerId, dc) {
+        dataChannels[peerId] = dc;
+        dc.onopen = () =>
+          addMessage(`Terhubung ke ${peerNames[peerId] || peerId}`, "them");
+        dc.onmessage = (ev) => {
+          let txt = ev.data;
+          try {
+            const obj = JSON.parse(ev.data);
+            if (obj.type === "raise-hand") {
+              updateHandBadge(peerId, obj.value === true);
+              return;
+            }
+          } catch (e) {}
+          addMessage(txt, "them");
+        };
+      }
+
+      function cleanupPeer(peerId) {
+        try {
+          if (pcMap[peerId]) {
+            pcMap[peerId].close();
+            delete pcMap[peerId];
+          }
+          if (dataChannels[peerId]) delete dataChannels[peerId];
+          const el = document.getElementById("p-" + peerId);
+          if (el) el.remove();
+          const thumb = document.getElementById("t-" + peerId);
+          if (thumb) thumb.remove();
+          if (audioAnalyzers[peerId]) {
+            try {
+              audioAnalyzers[peerId].analyser.disconnect();
+            } catch (e) {}
+            delete audioAnalyzers[peerId];
+          }
+          delete peerNames[peerId];
+        } catch (e) {
+          console.warn(e);
+        }
+      }
+
+      /* ====== CHAT ====== */
+      chatSend.onclick = () => {
+        const txt = chatInput.value.trim();
+        if (!txt) return;
+        addMessage(txt, "me");
+        for (const dc of Object.values(dataChannels)) {
+          if (dc && dc.readyState === "open") dc.send(txt);
+        }
+        chatInput.value = "";
+      };
+
+      /* ====== RAISE HAND ====== */
+      raiseHandLocal.onclick = () => {
+        const isRaised = raiseHandLocal.dataset.raised === "true";
+        const next = !isRaised;
+        raiseHandLocal.dataset.raised = next ? "true" : "false";
+        raiseHandLocal.textContent = next
+          ? "Raised ✋ (click to lower)"
+          : "✋ Raise Hand";
+        updateHandBadge(myId, next);
+        for (const dc of Object.values(dataChannels)) {
+          if (dc && dc.readyState === "open")
+            dc.send(JSON.stringify({ type: "raise-hand", value: next }));
+        }
+      };
+
+      /* ====== RECORDING ====== */
+      function startRecording() {
+        const tracks = [];
+        if (localStream) localStream.getTracks().forEach((t) => tracks.push(t));
+        const vids = document.querySelectorAll(".participant video");
+        vids.forEach((v) => {
+          try {
+            const s = v.srcObject;
+            if (s && s.getTracks)
+              s.getTracks().forEach((t) => {
+                if (!tracks.includes(t)) tracks.push(t);
+              });
+          } catch (e) {}
+        });
+        if (tracks.length === 0) return alert("Tidak ada track untuk direkam.");
+        const mixStream = new MediaStream(tracks);
+        recordedChunks = [];
+        try {
+          mediaRecorder = new MediaRecorder(mixStream, {
+            mimeType: "video/webm; codecs=vp8,opus",
+          });
+        } catch (e) {
+          mediaRecorder = new MediaRecorder(mixStream);
+        }
+        mediaRecorder.ondataavailable = (ev) => {
+          if (ev.data && ev.data.size) recordedChunks.push(ev.data);
+        };
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(recordedChunks, { type: "video/webm" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `firdymeet_record_${Date.now()}.webm`;
+          a.click();
+          URL.revokeObjectURL(url);
+          recordStatus.textContent = "Rekaman selesai, file didownload";
+          recordBtn.textContent = "Start Recording";
+        };
+        mediaRecorder.start(200);
+        recordStatus.textContent = "Merekam...";
+        recordBtn.textContent = "Stop Recording";
+      }
+      function stopRecording() {
+        if (mediaRecorder && mediaRecorder.state !== "inactive")
+          mediaRecorder.stop();
+      }
+
+      /* ====== LAYOUT (Gallery / Speaker) ====== */
+      function setMode(mode) {
+        currentMode = mode;
+        modeLabel.textContent = mode === "gallery" ? "Gallery" : "Speaker";
+        if (mode === "gallery") {
+          speakerContainer.style.display = "none";
+          galleryContainer.style.display = "grid";
+          const cnt = document.querySelectorAll(".participant").length;
+          let cols = 4;
+          if (cnt <= 1) cols = 1;
+          else if (cnt === 2) cols = 2;
+          else if (cnt <= 4) cols = 2;
+          else if (cnt <= 6) cols = 3;
+          else cols = 4;
+          galleryContainer.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+          toggleLayoutBtn.textContent = "Speaker View";
+        } else {
+          galleryContainer.style.display = "none";
+          speakerContainer.style.display = "block";
+          toggleLayoutBtn.textContent = "Gallery View";
+          highlightTopSpeaker();
+        }
+      }
+
+      /* ====== SPEAKER DETECTION ====== */
+      function setupLocalAudioMeter(id, stream) {
+        try {
+          const ctx = new (window.AudioContext || window.webkitAudioContext)();
+          const src = ctx.createMediaStreamSource(stream);
+          const analyser = ctx.createAnalyser();
+          analyser.fftSize = 512;
+          src.connect(analyser);
+          audioAnalyzers[id] = { analyser, ctx, src, level: 0, lastSpoke: 0 };
+          pollAudioLevels();
+        } catch (e) {
+          console.warn(e);
+        }
+      }
+      function setupRemoteAudioMeter(peerId, stream) {
+        try {
+          const ctx = new (window.AudioContext || window.webkitAudioContext)();
+          const src = ctx.createMediaStreamSource(stream);
+          const analyser = ctx.createAnalyser();
+          analyser.fftSize = 512;
+          src.connect(analyser);
+          audioAnalyzers[peerId] = {
+            analyser,
+            ctx,
+            src,
+            level: 0,
+            lastSpoke: 0,
+          };
+          pollAudioLevels();
+        } catch (e) {
+          console.warn(e);
+        }
+      }
+      let polling = false;
+      function pollAudioLevels() {
+        if (polling) return;
+        polling = true;
+        const buf = new Uint8Array(512);
+        const loop = () => {
+          for (const [id, obj] of Object.entries(audioAnalyzers)) {
+            try {
+              obj.analyser.getByteFrequencyData(buf);
+              let sum = 0;
+              for (let i = 0; i < buf.length; i++) sum += buf[i] * buf[i];
+              const rms = Math.sqrt(sum / buf.length);
+              obj.level = rms;
+              if (rms > 20) obj.lastSpoke = Date.now();
+            } catch (e) {}
+          }
+          highlightTopSpeaker();
+          requestAnimationFrame(loop);
+        };
+        requestAnimationFrame(loop);
+      }
+
+      function highlightTopSpeaker() {
+        let top = null,
+          topLevel = 0;
+        const now = Date.now();
+        for (const [id, obj] of Object.entries(audioAnalyzers)) {
+          const age = now - (obj.lastSpoke || 0);
+          const score = obj.level + (age < 2000 ? 200 - age / 10 : 0);
+          if (score > topLevel) {
+            topLevel = score;
+            top = id;
+          }
+        }
+        if (top && top !== speakerId) {
+          if (!speakerPinned) {
+            speakerId = top;
+            if (currentMode === "speaker") renderSpeakerView();
+          }
+        }
+      }
+
+      function setManualSpeaker(id) {
+        speakerPinned = true;
+        speakerId = id;
+        if (currentMode === "speaker") renderSpeakerView();
+      }
+
+      function renderSpeakerView() {
+        speakerMain.innerHTML = "";
+        let mainId = speakerId;
+        const parts = document.querySelectorAll(".participant");
+        if (!mainId) {
+          if (parts.length > 0) mainId = parts[0].id.replace(/^p-/, "");
+        }
+        if (mainId) {
+          const el = document.getElementById("p-" + mainId);
+          if (el) {
+            const node = el.cloneNode(true);
+            node.id = "main-" + mainId;
+            const vid = node.querySelector("video");
+            if (vid) {
+              vid.style.height = "100%";
+              vid.muted = mainId === myId;
+            }
+            speakerMain.appendChild(node);
+          }
+        }
+        speakerThumbs.innerHTML = "";
+        const all = document.querySelectorAll(".participant");
+        all.forEach((p) => {
+          const pid = p.id.replace(/^p-/, "");
+          const thumb = p.cloneNode(true);
+          thumb.id = "t-" + pid;
+          thumb.style.minHeight = "80px";
+          const fsb = thumb.querySelector(".fs-btn");
+          if (fsb) fsb.remove();
+          speakerThumbs.appendChild(thumb);
+        });
+      }
+
+      /* ====== RECORD BTN ====== */
+      recordBtn.onclick = () => {
+        if (mediaRecorder && mediaRecorder.state === "recording")
+          stopRecording();
+        else startRecording();
+      };
+
+      /* ====== LAYOUT TOGGLE ====== */
+      toggleLayoutBtn.onclick = () => {
+        if (currentMode === "gallery") {
+          setMode("speaker");
+          renderSpeakerView();
+        } else {
+          speakerPinned = false;
+          setMode("gallery");
+        }
+      };
+
+      /* ====== CLEANUP & LEAVE ====== */
+      function leaveRoom() {
+        Object.keys(pcMap).forEach((id) => cleanupPeer(id));
+        pcMap = {};
+        dataChannels = {};
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({ type: "leave", from: myId }));
+          ws.close();
+        }
+        localState.textContent = "Keluar dari room";
+        joinBtn.disabled = false;
+      }
+
+      /* ====== UI HOOKUPS ====== */
+      startBtn.onclick = startLocalMedia;
+      shareBtn.onclick = shareScreen;
+      joinBtn.onclick = connectSignaling;
+      leaveBtn.onclick = leaveRoom;
+      toggleMicBtn.onclick = () => {
+        if (!localStream) return;
+        const at = localStream.getAudioTracks()[0];
+        if (!at) return;
+        at.enabled = !at.enabled;
+        toggleMicBtn.textContent = at.enabled ? "Mute Mic" : "Unmute Mic";
+      };
+      toggleCamBtn.onclick = () => {
+        if (!localStream) return;
+        const vt = localStream.getVideoTracks()[0];
+        if (!vt) return;
+        vt.enabled = !vt.enabled;
+        toggleCamBtn.textContent = vt.enabled ? "Stop Cam" : "Start Cam";
+      };
+
+      /* ====== SHARE LINK ====== */
+      function getRoomLink() {
+        const room = roomInput.value.trim() || "default";
+        const name = (nameInput.value && nameInput.value.trim()) || "";
+        const url = `${location.origin}${
+          location.pathname
+        }?room=${encodeURIComponent(room)}${
+          name ? `&name=${encodeURIComponent(name)}` : ""
+        }`;
+        return url;
+      }
+      copyLinkBtn.onclick = async () => {
+        try {
+          const link = getRoomLink();
+          await navigator.clipboard.writeText(link);
+          alert("Link disalin:\n" + link);
+        } catch (e) {
+          alert("Gagal copy link: " + e);
+        }
+      };
+      shareLinkBtn.onclick = async () => {
+        const link = getRoomLink();
+        if (navigator.share) {
+          try {
+            await navigator.share({
+              title: "Join Firdy Meet",
+              text: "Gabung ke meeting room ini:",
+              url: link,
+            });
+          } catch (e) {
+            console.warn("Share dibatalkan", e);
+          }
+        } else
+          alert(
+            "Browser tidak mendukung Web Share API. Gunakan tombol Copy Link."
+          );
+      };
+
+      const homeBtn = document.getElementById("homeBtn");
+      homeBtn.onclick = () => {
+        leaveRoom(); // optional, bersihkan dulu koneksi
+        window.location.href = "index.html";
+      };
+
+      /* ====== NOTES ====== */
+      // - Signaling server must forward/relay messages (join/offer/answer/ice/peer-left).
+      // - This client sends `name` in join/offer/answer so peers can label each other.
+
+      /* ====== END ====== */
+      // initialize to gallery
+      setMode("gallery");
+    </script>
+  </body>
+</html>
