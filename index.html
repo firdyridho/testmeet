@@ -9,10 +9,10 @@
 
       :root {
         --bg: linear-gradient(135deg, #e0f2fe, #f5f9ff);
-        --card: #ffffff;
+        --card: #ffffffe0;
         --accent: #3b82f6;
         --accent-2: #60a5fa;
-        --text: #1e293b;
+        --text: #000000;
         --muted: #64748b;
       }
 
@@ -24,12 +24,29 @@
 
       body {
         font-family: "Inter", system-ui, sans-serif;
-        background: var(--bg);
+        background: url("tanjiro.jpg") no-repeat center center fixed;
+        background-size: cover;
         color: var(--text);
         min-height: 100vh;
         display: flex;
         flex-direction: column;
-        animation: fadeInBg 2s ease-in-out;
+        position: relative;
+      }
+
+      /* overlay biru biar tulisan tetap jelas */
+      body::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: rgba(59, 131, 246, 0.075);
+        z-index: 0;
+      }
+
+      header,
+      main,
+      footer {
+        position: relative;
+        z-index: 1;
       }
 
       @keyframes fadeInBg {
@@ -213,7 +230,7 @@
         text-align: center;
         font-size: 0.85rem;
         color: var(--muted);
-        background: rgba(255, 255, 255, 0.8);
+        background: rgba(255, 255, 255, 0.671);
         backdrop-filter: blur(6px);
       }
     </style>
