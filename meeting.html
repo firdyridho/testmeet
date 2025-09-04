@@ -89,6 +89,7 @@
         position: sticky;
         top: 0;
         z-index: 10;
+        flex-wrap: wrap;
       }
       .brand {
         font-weight: 800;
@@ -103,6 +104,7 @@
         display: flex;
         gap: 8px;
         align-items: center;
+        flex-wrap: wrap;
       }
       .btn {
         background: #f1f5f9;
@@ -113,6 +115,7 @@
         font-weight: 600;
         color: var(--text);
         transition: all 0.15s;
+        white-space: nowrap;
       }
       .btn:hover {
         background: #e2e8f0;
@@ -141,6 +144,7 @@
         display: flex;
         flex-direction: column;
         gap: 14px;
+        flex-shrink: 0;
       }
       .card {
         background: var(--card);
@@ -275,12 +279,41 @@
         color: var(--muted);
       }
 
+      /* ========== SPEAKER LAYOUT ========== */
+      .speaker-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .speaker-main {
+        flex: 1;
+        min-height: 300px;
+      }
+      .speaker-thumbs {
+        display: flex;
+        overflow-x: auto;
+        gap: 8px;
+        padding: 6px 0;
+      }
+      .speaker-thumbs .participant {
+        min-width: 120px;
+        max-width: 150px;
+        flex: 0 0 auto;
+      }
+
       @media (max-width: 900px) {
         .container {
           flex-direction: column;
         }
         .left-panel {
           width: 100%;
+          order: 2;
+        }
+        .grid-wrap {
+          order: 1;
+        }
+        .speaker-main {
+          min-height: 200px;
         }
       }
     </style>
@@ -314,9 +347,7 @@
 
     <!-- HEADER -->
     <header>
-      <div class="brand">
-        <div>Firdy Meet</div>
-      </div>
+      <div class="brand">Firdy Meet</div>
       <div class="top-controls">
         <button id="joinBtn" class="btn primary">Join Room</button>
         <button id="leaveBtn" class="btn">Leave</button>
@@ -335,22 +366,12 @@
 
           <div style="margin-top: 10px" class="controls-row">
             <label class="small">Nama:</label>
-            <input
-              id="nameInput"
-              type="text"
-              value=""
-              style="padding: 6px; border-radius: 8px"
-            />
+            <input id="nameInput" type="text" value="" />
           </div>
 
           <div style="margin-top: 10px" class="controls-row">
             <label class="small">Room:</label>
-            <input
-              id="roomInput"
-              type="text"
-              value="demo-room"
-              style="padding: 6px; border-radius: 8px"
-            />
+            <input id="roomInput" type="text" value="demo-room" />
           </div>
 
           <div style="margin-top: 10px" class="controls-row">
@@ -360,9 +381,7 @@
             <button id="toggleCam" class="btn">Stop Cam</button>
           </div>
 
-          <div
-            style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap"
-          >
+          <div style="margin-top: 10px" class="controls-row">
             <button id="copyLinkBtn" class="btn">Copy Link</button>
             <button id="shareLinkBtn" class="btn">Share Link</button>
           </div>
@@ -371,7 +390,7 @@
             Buka di beberapa perangkat/tab, pastikan signaling server benar.
           </div>
           <button id="raiseHandLocal" class="btn raise-btn">
-            ✋ Raise Hand
+            Angkat Tangan
           </button>
         </div>
 
@@ -414,9 +433,9 @@
           <div id="speakerContainer" style="display: none">
             <div class="speaker-layout">
               <div id="speakerMain" class="speaker-main"></div>
-              <div class="speaker-thumbs">
+              <div>
                 <div style="font-weight: 700; margin-bottom: 6px">Peserta</div>
-                <div id="speakerThumbs" class="thumb-scroll"></div>
+                <div id="speakerThumbs" class="speaker-thumbs"></div>
               </div>
             </div>
           </div>
@@ -886,9 +905,7 @@
         const isRaised = raiseHandLocal.dataset.raised === "true";
         const next = !isRaised;
         raiseHandLocal.dataset.raised = next ? "true" : "false";
-        raiseHandLocal.textContent = next
-          ? "Raised ✋ (click to lower)"
-          : "✋ Raise Hand";
+        raiseHandLocal.textContent = next ? "Turunkan Tangan" : "Angkat Tangan";
         updateHandBadge(myId, next);
         for (const dc of Object.values(dataChannels)) {
           if (dc && dc.readyState === "open")
